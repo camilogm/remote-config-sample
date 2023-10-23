@@ -1,0 +1,31 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: Test using remote config
+
+Resources:
+  LambdaTestLibraries:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: remote-config-layer
+      Description: libraries to remote config
+      ContentUri: layer/
+      CompatibleRuntimes:
+        - python3.8  
+  LambdaTestRemoteConfig:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: index.lambda_handler
+      Runtime: python3.8
+      CodeUri: ./src
+      MemorySize: 128
+      Timeout: 3
+      Policies:
+        - S3ReadPolicy:
+            BucketName: test-remote-config-python
+      Layers:
+        - !Ref LambdaTestLibraries
+      Environment:
+        Variables:
+          PROJECT_ID: test-f51b9
+          BUCKET_NAME: test-remote-config-python
+          SERVICE_ACCOUNT_JSON_S3_PATH: service-account.json
